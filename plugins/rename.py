@@ -42,7 +42,8 @@ async def rename_start(client, message):
                 uploadtype = await db.get_uploadtype(user_id)
                 exten = await db.get_exten(user_id)
                 if form_list is None or uploadtype is None or exten is None:
-                    return await message.reply_text("Please set template, uploadtype, extension")
+                    await message.reply_text("Please set template, uploadtype, extension")
+                    return
             else:
                 await message.reply_text("+4gb not active to process it. Anyone wanna donate string to enable 4gb Contact owner @devil_testing_bot", reply_to_message_id=message.id)
                 return
@@ -51,7 +52,8 @@ async def rename_start(client, message):
             uploadtype = await db.get_uploadtype(user_id)
             exten = await db.get_exten(user_id)
             if form_list is None or uploadtype is None or exten is None:
-                return await message.reply_text("Please set template, uploadtype, extension")
+                await message.reply_text("Please set template, uploadtype, extension")
+                return
 
         filename = file.file_name
         match = pattern.search(filename)
@@ -69,6 +71,7 @@ async def rename_start(client, message):
         except Exception as e:
             await ms.edit(str(e))
             return
+            
         duration = 0
         resolution = 0
         try:
@@ -95,9 +98,9 @@ async def rename_start(client, message):
             
         if media.thumbs or c_thumb:
             if c_thumb:
-                ph_path = await bot.download_media(c_thumb)
+                ph_path = await client.download_media(c_thumb)
             else:
-                ph_path = await bot.download_media(media.thumbs[0].file_id)
+                ph_path = await client.download_media(media.thumbs[0].file_id)
             Image.open(ph_path).convert("RGB").save(ph_path)
             img = Image.open(ph_path)
             img.resize((320, 320))
