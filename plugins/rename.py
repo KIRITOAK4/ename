@@ -109,6 +109,7 @@ async def rename_start(client, message):
             fupload = int(-1001682783965)
             client = ubot
         else:
+            fupload = chat_id if chat_id is not None else message.chat_id
             client = pbot
             
         await ms.edit("Trying To Uploading....")
@@ -146,7 +147,7 @@ async def rename_start(client, message):
 
             if client == ubot:
                 await pbot.copy_message(
-                    chat_id=chat_id if chat_id is not None else update.message.chat.id,
+                    chat_id=chat_id if chat_id is not None else message.chat_id,
                     from_chat_id=suc.chat.id,
                     message_id=suc.message_id
                 )
