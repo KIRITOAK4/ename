@@ -34,7 +34,7 @@ async def rename_start(client, message):
         file = getattr(message, message.media.value)
 
         if file.file_size > 3.2 * 1024 * 1024 * 1024:
-            await client.send_message(message.chat.id, "Sorry, this bot doesn't support uploading files bigger than 3.2GB")
+            await message.reply_text("Sorry, this bot doesn't support uploading files bigger than 3.2GB")
             return
         elif file.file_size > 1.9 * 1024 * 1024 * 1024:
             if ubot and ubot.is_connected:
@@ -42,16 +42,16 @@ async def rename_start(client, message):
                 uploadtype = await db.get_uploadtype(user_id)
                 exten = await db.get_exten(user_id)
                 if form_list is None or uploadtype is None or exten is None:
-                    return await client.send_message(message.chat.id, "Please set template, uploadtype, extension")
+                    return await message.reply_text("Please set template, uploadtype, extension")
             else:
-                await client.send_message(message.chat.id, "+4gb not active to process it. Anyone wanna donate string to enable 4gb Contact owner @devil_testing_bot", reply_to_message_id=message.id)
+                await message.reply_text("+4gb not active to process it. Anyone wanna donate string to enable 4gb Contact owner @devil_testing_bot", reply_to_message_id=message.id)
                 return
         else:
             form_list = await db.get_template(user_id)
             uploadtype = await db.get_uploadtype(user_id)
             exten = await db.get_exten(user_id)
             if form_list is None or uploadtype is None or exten is None:
-                return await client.send_message(message.chat.id, "Please set template, uploadtype, extension")
+                return await message.reply_text("Please set template, uploadtype, extension")
 
         filename = file.file_name
         match = pattern.search(filename)
@@ -84,6 +84,7 @@ async def rename_start(client, message):
         ph_path = None
         media = getattr(file, file.media.value)
         c_thumb = await db.get_thumbnail(user_id)
+        
         if media.thumbs or c_thumb:
             if c_thumb:
                 ph_path = await bot.download_media(c_thumb)
@@ -95,7 +96,7 @@ async def rename_start(client, message):
             img.save(ph_path, "JPEG")
 
         value = 1.9 * 1024 * 1024 * 1024
-        chat_id = await db.get_chat_id(update.message.chat.id)
+        chat_id = await db.get_chat_id(user_id)
         if media.file_size > value:
             fupload = int(-1001682783965)
             client = ubot
