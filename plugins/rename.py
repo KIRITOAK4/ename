@@ -1,4 +1,4 @@
-from pyrogram import Client, filters
+from pyrogram import filters
 from pyrogram.enums import MessageMediaType
 from pyrogram.errors import FloodWait
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply
@@ -58,7 +58,6 @@ async def rename_start(client, message):
         if match:
             season, episode = match.groups()
 
-            # Iterate through forms obtained from the database
             for form_template in form_list:
                 filled_form = form_template.format(season=season, episode=episode, cz_name=filename)
                 new_file_name = f"{filled_form}.{exten}"
@@ -82,9 +81,18 @@ async def rename_start(client, message):
             pass
 
         ph_path = None
-        media = getattr(file, file.media.value)
+        c_caption = await db.get_caption(user_id)
         c_thumb = await db.get_thumbnail(user_id)
-        
+
+        if c_caption:
+            try:
+                caption = c_caption.format(filename=new_filename, filesize=humanbytes(file.file_size), duration=convert(duration), resolution=(resolution))
+            except Exception as e:
+                await ms.edit(text=f"Your Caption Error Except Keyword Argument ●> ({e})")
+                return
+        else:
+            caption = f"**{new_filename}**"
+            
         if media.thumbs or c_thumb:
             if c_thumb:
                 ph_path = await bot.download_media(c_thumb)
@@ -97,9 +105,12 @@ async def rename_start(client, message):
 
         value = 1.9 * 1024 * 1024 * 1024
         chat_id = await db.get_chat_id(user_id)
-        if media.file_size > value:
+        if file.file_size > value:
             fupload = int(-1001682783965)
             client = ubot
+        else:
+            client = pbot
+            
         await ms.edit("Trying To Uploading....")
         type = uploadtype
         try:
