@@ -62,24 +62,31 @@ async def rename_start(client, message):
 
             for form_template in form_list:
                 filled_form = form_template.format(season=season, episode=episode, cz_name=filename)
-                new_file_name = f"{filled_form}.{exten}"
-                file_path = f"downloads/{new_file_name}"
-                
+                new_name = f"{filled_form}.{exten}"
+                file_path = f"downloads/{new_name}"
+
         ms = await message.reply_text("Trying To Downloading....")
         try:
             path = await client.download_media(message=file, file_name=file_path, progress=progress_for_pyrogram, progress_args=("Download Started....", ms, time.time()))
         except Exception as e:
             await ms.edit(str(e))
             return
-            
+
         duration = 0
         resolution = 0
+        audio = 0
+        subtitle = 0
+
         try:
             metadata = extractMetadata(createParser(file_path))
             if metadata.has("duration"):
                 duration = metadata.get('duration').second
             if metadata.has("resolution"):
                 resolution = metadata.get("resolution")
+            if metadata.has("audio"):
+                audio = len(metadata.get("audio"))
+            if metadata.has("subtitle"):
+                subtitle = len(metadata.get("subtitle"))
         except:
             pass
 
@@ -89,13 +96,20 @@ async def rename_start(client, message):
 
         if c_caption:
             try:
-                caption = c_caption.format(filename=new_filename, filesize=humanbytes(file.file_size), duration=convert(duration), resolution=(resolution))
+                caption = c_caption.format(filename=new_name, filesize=humanbytes(file.file_size), duration=convert(duration))
             except Exception as e:
                 await ms.edit(text=f"Your Caption Error Except Keyword Argument ●> ({e})")
                 return
         else:
-            caption = f"**{new_filename}**"
-            
+            if audio > 1 and subtitle > 0:
+                caption = f"**{new_name} Dual Sub {resolution}**"
+            elif audio > 1:
+                caption = f"**{new_name} Dual {resolution}**"
+            elif subtitle > 0:
+                caption = f"**{new_name} Sub {resolution}**"
+            else:
+                caption = f"**{new_name} {resolution}**"
+
         if media.thumbs or c_thumb:
             if c_thumb:
                 ph_path = await client.download_media(c_thumb)
@@ -114,7 +128,7 @@ async def rename_start(client, message):
         else:
             fupload = chat_id if chat_id is not None else message.chat_id
             client = pbot
-            
+
         await ms.edit("Trying To Uploading....")
         type = uploadtype
         try:
@@ -169,7 +183,7 @@ async def rename_start(client, message):
             os.remove(ph_path)
 
     except Exception as e:
-        await update.message.edit_text(f"An error occurred: {e}")
+        await message.edit_text(f"An error occurred: {e}")
         if os.path.exists(file_path):
             os.remove(file_path)
         if ph_path and os.path.exists(ph_path):
