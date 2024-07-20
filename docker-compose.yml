@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  ename:
+    build: .
+    ports:
+      - "8000:8080"
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - API_ID=${API_ID}
+      - API_HASH=${API_HASH}
+      - WEBHOOK=${WEBHOOK}
+      - ADMIN=${ADMIN}
+      - DB_URL=${DB_URL}
+      - DB_NAME=${DB_NAME}
+      - FORCE_SUB=${FORCE_SUB}
+      - LOG_CHANNEL=${LOG_CHANNEL}
+      - SESSION_STRING=${SESSION_STRING}
